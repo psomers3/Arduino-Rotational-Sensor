@@ -132,6 +132,6 @@ void AngleSensor::set_degrees(bool use_degrees)
 void AngleSensor::set_pulses_per_rev(uint16_t pulses_per_rev)
 {
     m_pulses_per_rev = pulses_per_rev;
-    m_degree_per_tick = DEGREES/m_pulses_per_rev;
-    m_radian_per_tick = RADIANS/m_pulses_per_rev;
+    m_degree_per_tick = DEGREES/(float)m_pulses_per_rev;
+    m_radian_per_tick = RADIANS/(float)m_pulses_per_rev;
 }
