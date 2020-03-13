@@ -1,23 +1,23 @@
-#ifndef AngleSensor_hpp
-#define AngleSensor_hpp
+#ifndef BLDCAngleSensor_hpp
+#define BLDCAngleSensor_hpp
 
 #define ENCODER_USE_INTERRUPTS
 #include "stdlib.h"
-#include "Encoder.h"
+#include "BLDCEncoder.h"
 #include <Arduino.h>
 
 #define MaxNumofSensors 5
 
 
-class AngleSensor
+class BLDCAngleSensor
 {
 private:
-    static AngleSensor* m_AngleSensor_ptr[];  // array of pointers to created AngleSensors
-    static uint8_t m_num_sensors;             // how many AngleSensors exist
+    static BLDCAngleSensor* m_BLDCAngleSensor_ptr[];  // array of pointers to created BLDCAngleSensors
+    static uint8_t m_num_sensors;             // how many BLDCAngleSensors exist
     float m_velocity;                         // last recorded angular velocity
     float m_last_angle;                       // last recorded angle
     float m_pre_last_angle;
-    Encoder m_encoder;                        // encoder object used to get position
+    BLDCEncoder m_encoder;                        // encoder object used to get position
     static float m_global_update_freq;        // frequency in Hz to update sensors at
     uint16_t m_pulses_per_rev;                // resolution of the Encoder
     bool m_use_degrees;                       // Boolean value to use degrees or radians
@@ -26,81 +26,81 @@ private:
     unsigned long m_micros_at_last_change;
     unsigned long m_micros_at_pre_last_change;
     
-    /// Returns number of existing AngleSensors
+    /// Returns number of existing BLDCAngleSensors
     /**
-     * @return number of existing AngleSensor classes
+     * @return number of existing BLDCAngleSensor classes
      */
     static uint8_t get_num_sensors();
     
-    /// Returns pointer to the sensor at index in m_AngleSensor_ptr
+    /// Returns pointer to the sensor at index in m_BLDCAngleSensor_ptr
     /**
-     * @param index The index value of the desired AngleSensor in m_AngleSensor_ptr
+     * @param index The index value of the desired BLDCAngleSensor in m_BLDCAngleSensor_ptr
      *
-     * @return A pointer to an AngleSensor object
+     * @return A pointer to an BLDCAngleSensor object
      */
-    static AngleSensor* get_sensor_ptr(uint8_t index);
+    static BLDCAngleSensor* get_sensor_ptr(uint8_t index);
     
     
 public:
     ///Constructor
     /**
-     * Creates an AngleSensor object. One of the input pin params should be an interrupt enablable pin.
+     * Creates an BLDCAngleSensor object. One of the input pin params should be an interrupt enablable pin.
      * @param pinA Digital input pin the corresponds to A signal for encoder.
      * @param pinB Digital input pin the corresponds to B signal for encoder.
      */
-    AngleSensor(uint8_t pinA, uint8_t pinB);
+    BLDCAngleSensor(uint8_t pinA, uint8_t pinB, uint8_t pinC);
     
     ///Destructor
-    ~AngleSensor();
+    ~BLDCAngleSensor();
     
     void update_velocity(float sampling_freq);
-
-
-    /// Updates the velocity and angles of each AngleSensor object
+    
+    
+    /// Updates the velocity and angles of each BLDCAngleSensor object
     /**
-     * This function will cycle through each instance of AngleSensor and update the velocities and angular positions
+     * This function will cycle through each instance of BLDCAngleSensor and update the velocities and angular positions
      * @param freq Sampling frequency used to update the sensors
      */
     static void update_all();
-
-    /// Zeros all AngleSensor objects
+    
+    /// Zeros all BLDCAngleSensor objects
     /**
-     * This function will iterate through each instance of AngleSensor and zero the states (e.g. velocity and position)
+     * This function will iterate through each instance of BLDCAngleSensor and zero the states (e.g. velocity and position)
      */
     static void zero_all();
-
+    
     ///Returns the current counter value of the encoder
     /**
      * This function will return a int32_t value as the counter value of the encoder
      * @return int32_t value with number of counts on the encoder
      */
     int32_t get_position();
-
+    
     ///Returns the current angular velocity read by the sensor
     /**
-     * This function will return the angular velocity of the sensor in units defined in AngleSensor.hpp (e.g. rad/sec)
+     * This function will return the angular velocity of the sensor in units defined in BLDCAngleSensor.hpp (e.g. rad/sec)
      * @return float value with angular velocity of sensor
      */
     float get_velocity();
-
+    
     ///Returns the current angular position of sensor
     /**
-     * This function will return the angular position of the sensor in units defined in AngleSensor.hpp (e.g. rad or degrees)
+     * This function will return the angular position of the sensor in units defined in BLDCAngleSensor.hpp (e.g. rad or degrees)
      * @return float value with angular position of sensor
      */
     float get_angle();
-
+    
     ///Zeros the sensor
     /**
-     * This function will zero the states of the AngleSensor object (e.g. position and velocity)
+     * This function will zero the states of the BLDCAngleSensor object (e.g. position and velocity)
      */
     void zero();                  //zeros sensor
-
+    
     ///Sets the Anglular position of the Sensor
     /**
-     * This function sets the sensor angular position to a specific angle. Units are defined in AngleSensor.hpp
+     * This function sets the sensor angular position to a specific angle. Units are defined in BLDCAngleSensor.hpp
      * @param angle the angle to set the sensor value to.
-     */    
+     */
     void set_angle(float angle);  //sets current sensor angle
     
     /// Sets the update frequency to update all sensors at
@@ -132,6 +132,6 @@ public:
      */
     void remove_from_sensors();
     
-};//AngleSensor
+};//BLDCAngleSensor
 
-#endif /* AngleSensor_hpp */
+#endif /* BLDCAngleSensor_hpp */

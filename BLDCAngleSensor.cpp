@@ -1,16 +1,16 @@
-#include "AngleSensor.hpp"
+#include "BLDCAngleSensor.hpp"
 #include <Arduino.h>
 
 #define DEGREES 360
 #define RADIANS 6.283185
 
-uint8_t AngleSensor::m_num_sensors = 0;
-AngleSensor* AngleSensor::m_AngleSensor_ptr[MaxNumofSensors];
-float AngleSensor::m_global_update_freq = 50;
+uint8_t BLDCAngleSensor::m_num_sensors = 0;
+BLDCAngleSensor* BLDCAngleSensor::m_BLDCAngleSensor_ptr[MaxNumofSensors];
+float BLDCAngleSensor::m_global_update_freq = 50;
 
-AngleSensor::AngleSensor(uint8_t pinA, uint8_t pinB):m_encoder(pinA, pinB)  // <- encoder object is initialized here
+BLDCAngleSensor::BLDCAngleSensor(uint8_t pinA, uint8_t pinB, uint8_t pinC):m_encoder(pinA, pinB, pinC)  // <- encoder object is initialized here
 {
-    m_AngleSensor_ptr[m_num_sensors] = this;  // add pointer of this instance to array
+    m_BLDCAngleSensor_ptr[m_num_sensors] = this;  // add pointer of this instance to array
     m_num_sensors++;
     m_pulses_per_rev = 2400;  // set resolution of testing encoder
     m_degree_per_tick = (float)DEGREES/(float)m_pulses_per_rev;
@@ -19,22 +19,22 @@ AngleSensor::AngleSensor(uint8_t pinA, uint8_t pinB):m_encoder(pinA, pinB)  // <
     m_micros_at_last_change = micros();
 }
 
-uint8_t AngleSensor::get_num_sensors()
+uint8_t BLDCAngleSensor::get_num_sensors()
 {
-   return m_num_sensors;   
+    return m_num_sensors;
 }
 
-AngleSensor* AngleSensor::get_sensor_ptr(uint8_t index)
+BLDCAngleSensor* BLDCAngleSensor::get_sensor_ptr(uint8_t index)
 {
-  return m_AngleSensor_ptr[index];
+    return m_BLDCAngleSensor_ptr[index];
 }
 
-float AngleSensor::return_angle()
+float BLDCAngleSensor::return_angle()
 {
     return m_last_angle;
 }
 
-float AngleSensor::get_angle()
+float BLDCAngleSensor::get_angle()
 {
     if (m_use_degrees)
         return (float)get_position()*m_degree_per_tick;
@@ -43,40 +43,40 @@ float AngleSensor::get_angle()
 }
 
 //destructor
-AngleSensor::~AngleSensor(){}
+BLDCAngleSensor::~BLDCAngleSensor(){}
 
-void AngleSensor::remove_from_sensors()
+void BLDCAngleSensor::remove_from_sensors()
 {
-    AngleSensor* temp_array[MaxNumofSensors];
+    BLDCAngleSensor* temp_array[MaxNumofSensors];
     int curr_index = 0;
     // gather all pointers to instances that are not being deleted
-    for (int i=0; i < AngleSensor::get_num_sensors(); i++)
+    for (int i=0; i < BLDCAngleSensor::get_num_sensors(); i++)
     {
-        if (AngleSensor::get_sensor_ptr(i) != this)
+        if (BLDCAngleSensor::get_sensor_ptr(i) != this)
         {
-            temp_array[curr_index] = AngleSensor::get_sensor_ptr(i);
+            temp_array[curr_index] = BLDCAngleSensor::get_sensor_ptr(i);
         }
     }
     // put non-deleted instances first in static storage array
-    for (int i=0; i < AngleSensor::get_num_sensors(); i++)
+    for (int i=0; i < BLDCAngleSensor::get_num_sensors(); i++)
     {
-        m_AngleSensor_ptr[i] == temp_array[i];
+        m_BLDCAngleSensor_ptr[i] == temp_array[i];
     }
     m_num_sensors--; // last pointer should now be ignored when looping through array
 }
 
-int32_t AngleSensor::get_position()
+int32_t BLDCAngleSensor::get_position()
 {
     return m_encoder.read();
 }
 
-void AngleSensor::update_velocity(float sampling_freq)
+void BLDCAngleSensor::update_velocity(float sampling_freq)
 {
     float curr_angle = get_angle();
     unsigned long current_time = micros();
     unsigned long time_delta = current_time - m_micros_at_last_change;
     unsigned long time_delta_2 = current_time - m_micros_at_pre_last_change;
-
+    
     if (curr_angle - m_last_angle != 0)
     {
         m_velocity = (curr_angle - m_last_angle) / ((double)time_delta / 1e6);
@@ -93,12 +93,12 @@ void AngleSensor::update_velocity(float sampling_freq)
     }
 }
 
-float AngleSensor::get_velocity()
+float BLDCAngleSensor::get_velocity()
 {
-  return m_velocity;
+    return m_velocity;
 }
 
-void AngleSensor::zero()
+void BLDCAngleSensor::zero()
 {
     m_velocity = 0;
     m_last_angle = 0;
@@ -106,7 +106,7 @@ void AngleSensor::zero()
     m_encoder.write(0);
 }
 
-void AngleSensor::set_angle(float angle)
+void BLDCAngleSensor::set_angle(float angle)
 {
     int32_t pos;
     m_use_degrees ? pos = angle / m_degree_per_tick : pos = angle/m_radian_per_tick;
@@ -115,33 +115,33 @@ void AngleSensor::set_angle(float angle)
     m_encoder.write(pos);
 }
 
-static void AngleSensor::update_all()
+static void BLDCAngleSensor::update_all()
 {
-  for (int i=0; i<AngleSensor::get_num_sensors(); i++)
-  {
-    AngleSensor::get_sensor_ptr(i)->update_velocity(m_global_update_freq);
-  }
+    for (int i=0; i<BLDCAngleSensor::get_num_sensors(); i++)
+    {
+        BLDCAngleSensor::get_sensor_ptr(i)->update_velocity(m_global_update_freq);
+    }
 }
 
-static void AngleSensor::zero_all()
+static void BLDCAngleSensor::zero_all()
 {
-    for (int i=0; i<AngleSensor::get_num_sensors(); i++)
-  {
-    AngleSensor::get_sensor_ptr(i)->zero();
-  }
+    for (int i=0; i<BLDCAngleSensor::get_num_sensors(); i++)
+    {
+        BLDCAngleSensor::get_sensor_ptr(i)->zero();
+    }
 }
 
-static void AngleSensor::set_global_update_freq(float freq)
+static void BLDCAngleSensor::set_global_update_freq(float freq)
 {
     m_global_update_freq = freq;
 }
 
-void AngleSensor::set_degrees(bool use_degrees)
+void BLDCAngleSensor::set_degrees(bool use_degrees)
 {
     m_use_degrees = use_degrees;
 }
 
-void AngleSensor::set_pulses_per_rev(uint16_t pulses_per_rev)
+void BLDCAngleSensor::set_pulses_per_rev(uint16_t pulses_per_rev)
 {
     m_pulses_per_rev = pulses_per_rev;
     m_degree_per_tick = DEGREES/(float)m_pulses_per_rev;
