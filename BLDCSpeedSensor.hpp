@@ -6,6 +6,7 @@
 #include <Arduino.h>
 
 #define MaxNumofSensors 5
+constexpr uint8_t HISTORY_LENGTH = 20;
 
 
 class BLDCSpeedSensor
@@ -13,9 +14,18 @@ class BLDCSpeedSensor
 private:
     static BLDCSpeedSensor* m_BLDCSpeedSensor_ptr[];  // array of pointers to created SpeedSensors
     static uint8_t m_num_sensors;             // how many SpeedSensors exist
-    float m_velocity;                         // last recorded angular velocity
-    unsigned long m_micros_at_last_change;
-    
+    unsigned long m_micros_at_last_change[3];
+    unsigned long m_micros_at_prev_to_last_change[3];
+    unsigned long m_history1[HISTORY_LENGTH];
+    unsigned long m_history2[HISTORY_LENGTH];
+    unsigned long m_history3[HISTORY_LENGTH];
+    int history1_index;
+    int history2_index;
+    int history3_index;
+    uint8_t m_last_pole;
+    int8_t m_directions[10];
+    uint8_t m_direction_index;
+
     
     /// Returns number of existing BLDCSpeedSensors
     /**
@@ -32,6 +42,8 @@ private:
     static BLDCSpeedSensor* get_sensor_ptr(uint8_t index);
     
     static void ISR_update_velocity0();
+    static void ISR_update_velocity1();
+    static void ISR_update_velocity2();
 
 public:
     ///Constructor
